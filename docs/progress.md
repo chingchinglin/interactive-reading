@@ -79,3 +79,17 @@ User 在驗收時問「計分怎麼算」，查 code 後發現原本是「行為
 - 行為觸發（暖身、聽完、翻卡）不再加分；星星徽章仍標記 stage 完成（與分數脫鉤）
 
 意圖：分數反映「真實理解程度」，學生答錯就拿不到分。
+
+## 2026-05-14 — UI 扁平化（移除所有漸層）
+
+User feedback：不喜歡漸層設計。選擇走 Material/平面風格。
+
+清掉 template 內 20 處漸層宣告：
+- 背景 3 層 radial+linear → 單色 `#f4f6fa`
+- Header（藍橘漸層）→ 純藍
+- 所有按鈕（primary/accent/play/replay/選中態）→ 純色 + 陰影
+- Mascot、字卡翻面、warmup 場景、播放區、計分 chip、克漏字標題 → 全變單色
+
+副產物：Stage 4 兩個小標明確分色 — 細節題藍底（📘）、推理題橘底（🧩），用 `.cloze-header.blue` modifier 取代 inline 漸層 override。
+
+保留：陰影層次、所有動畫、Toro、karaoke 黃色 highlight、撒花、浮動裝飾 emoji。
