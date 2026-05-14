@@ -54,3 +54,13 @@ User feedback：v2 中 Stage 2（1 題）vs Stage 4（2 題）的不對稱沒有
   - 🧩 推理題（綜合全文）：Q3 Weather → nice；Q4 Which NOT true → C
 - 過關條件：Stage 2 點「我聽完了」、Stage 4 四題全答完
 - 教學意圖明確：聽力 = 輸入暴露（無評量壓力），理解 = 整合輸出（完整評量）
+
+## 2026-05-14 — 上架 GitHub + 開放 Pages
+
+- Repo：`chingchinglin/interactive-reading`（個人帳號）
+- Demo URL：https://chingchinglin.github.io/interactive-reading/
+- 可見性：**Public**（free 方案 Pages 限制只能 public）
+- 上架前清理：
+  - 移除 `assets/generate_tts.py` 的 hardcoded API key fallback
+  - `.gitignore` 排除 `reading_2.pdf`（版權教材，不上傳）、`.env`、`*.pdf`
+- 待觀察的版權邊界：4 句 zoo 短文 + 4 個生字翻譯來自 Boyo Reading，量少但已隨 repo public。若主管/版權單位有疑慮可再評估

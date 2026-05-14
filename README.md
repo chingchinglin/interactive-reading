@@ -60,3 +60,9 @@ python3 assets/build.py
 ## 進度與決策
 
 詳見 `docs/progress.md` 與 `docs/decisions.md`。
+
+## 內容來源 / Attribution
+
+本 POC 所使用的閱讀短文（*Go to the zoo*）與生字翻譯來自 **博幼基金會（Boyo Foundation）** 的 *Boyo Reading – intermediate* 教材 Unit 1。
+
+**僅作為教學示範用途**，無商業使用、不對外散布。若有版權疑慮請聯繫專案負責人。
