@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive Reading — Unit 1: Go to the zoo</title>
+<style>
+  :root {
+    --c-bg-1: #fff7e6;
+    --c-bg-2: #e6f4ff;
+    --c-card: #ffffff;
+    --c-primary: #2e8bc0;
+    --c-primary-dark: #1e6a99;
+    --c-accent: #f59e0b;
+    --c-accent-dark: #d97706;
+    --c-pink: #fb7185;
+    --c-correct: #16a34a;
+    --c-wrong: #dc2626;
+    --c-muted: #6b7280;
+    --c-border: #e5e7eb;
+    --c-highlight: #fef3c7;
+    --c-karaoke: #fde047;
+    --r-sm: 10px; --r-md: 16px; --r-lg: 24px;
+    --shadow-soft: 0 6px 22px rgba(46, 139, 192, 0.12);
+    --shadow-pop: 0 10px 30px rgba(245, 158, 11, 0.25);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Segoe UI", sans-serif;
+    background:
+      radial-gradient(circle at 10% 0%, #ffe4b5 0%, transparent 35%),
+      radial-gradient(circle at 90% 10%, #c7e9ff 0%, transparent 40%),
+      linear-gradient(180deg, var(--c-bg-1) 0%, var(--c-bg-2) 100%);
+    background-attachment: fixed;
+    color: #1f2937;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  body { padding: 18px 16px 80px; overflow-x: hidden; }
+  .container { max-width: 920px; margin: 0 auto; position: relative; }
+
+  /* === Decorative floating shapes === */
+  .deco { position: fixed; pointer-events: none; opacity: 0.55; z-index: 0; }
+  .deco.cloud-1 { top: 8%; left: 4%; font-size: 48px; animation: float 8s ease-in-out infinite; }
+  .deco.cloud-2 { top: 22%; right: 5%; font-size: 36px; animation: float 10s ease-in-out infinite reverse; }
+  .deco.sun { top: 3%; right: 12%; font-size: 56px; animation: spin-slow 30s linear infinite; }
+  .deco.tree-1 { bottom: 5%; left: 2%; font-size: 64px; opacity: 0.4; }
+  .deco.star-1 { top: 45%; left: 3%; font-size: 28px; animation: float 6s ease-in-out infinite; }
+  .deco.star-2 { bottom: 18%; right: 4%; font-size: 24px; animation: float 9s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* === Top bar === */
+  header {
+    position: relative; z-index: 2;
+    background: linear-gradient(135deg, #2e8bc0 0%, #5dade2 60%, #f59e0b 110%);
+    color: white;
+    border-radius: var(--r-lg);
+    padding: 22px 26px 18px;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 22px;
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.3px; }
+  header .subtitle { margin: 4px 0 0; opacity: 0.92; font-size: 13px; }
+
+  .score-bar {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.22);
+    padding: 8px 14px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+  }
+  .score-num {
+    display: flex; align-items: center; gap: 4px;
+    font-weight: 800; font-size: 16px;
+  }
+  .stars { display: flex; gap: 2px; font-size: 18px; }
+  .stars .star { opacity: 0.3; transition: all 0.4s; }
+  .stars .star.lit { opacity: 1; animation: starPop 0.6s ease; }
+  @keyframes starPop {
+    0% { transform: scale(0.3) rotate(-30deg); opacity: 0; }
+    60% { transform: scale(1.4) rotate(15deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  .stepper {
+    display: flex;
+    gap: 6px;
+    margin: 18px 0 4px;
+    background: rgba(255,255,255,0.18);
+    padding: 6px;
+    border-radius: 999px;
+  }
+  .step {
+    flex: 1;
+    text-align: center;
+    padding: 8px 6px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: rgba(255,255,255,0.85);
+    user-select: none;
+  }
+  .step:hover { background: rgba(255,255,255,0.12); }
+  .step.active { background: white; color: var(--c-primary-dark); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+  .step.done::after { content: " ✓"; color: var(--c-accent); }
+
+  main { position: relative; z-index: 2; }
+
+  /* === Mascot === */
+  .mascot-row {
+    display: flex; gap: 14px; align-items: flex-start;
+    margin-bottom: 18px;
+    animation: mascotIn 0.6s ease;
+  }
+  @keyframes mascotIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: none; } }
+  .mascot {
+    flex-shrink: 0;
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #fde68a, #fcd34d);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    box-shadow: var(--shadow-pop);
+    animation: bob 3s ease-in-out infinite;
+  }
+  .mascot.cheer { animation: cheer 0.6s ease; }
+  .mascot.sad { animation: shake 0.5s; }
+  @keyframes bob { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
+  @keyframes cheer { 0%,100% { transform: scale(1) rotate(0); } 25% { transform: scale(1.2) rotate(-12deg); } 75% { transform: scale(1.2) rotate(12deg); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+  .bubble {
+    flex: 1;
+    background: white;
+    border-radius: 18px;
+    padding: 14px 18px;
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #374151;
+  }
+  .bubble::before {
+    content: "";
+    position: absolute;
+    left: -8px; top: 22px;
+    width: 16px; height: 16px;
+    background: white;
+    transform: rotate(45deg);
+  }
+
+  /* === Stage container === */
+  .stage {
+    display: none;
+    background: var(--c-card);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-soft);
+    animation: stageIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .stage.active { display: block; }
+  @keyframes stageIn { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+  .stage-title {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 6px;
+    font-size: 20px; font-weight: 800;
+    color: var(--c-primary-dark);
+  }
+  .stage-title .badge {
+    background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800;
+    box-shadow: 0 2px 6px rgba(46, 139, 192, 0.3);
+  }
+  .stage-desc { color: var(--c-muted); font-size: 14px; margin: 0 0 18px; }
+
+  /* === Buttons === */
+  button {
+    font-family: inherit;
+    font-size: 15px;
+    padding: 10px 18px;
+    border: 2px solid var(--c-border);
+    background: white;
+    color: #1f2937;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 600;
+  }
+  button:hover:not(:disabled) { border-color: var(--c-primary); background: #f0f7fc; transform: translateY(-1px); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.primary {
+    background: linear-gradient(135deg, var(--c-primary), #5dade2);
+    color: white; border-color: transparent;
+    box-shadow: 0 4px 14px rgba(46, 139, 192, 0.35);
+  }
+  button.primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--c-primary-dark), var(--c-primary));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(46, 139, 192, 0.45);
+  }
+  button.accent {
+    background: linear-gradient(135deg, var(--c-accent), #fbbf24);
+    color: white; border-color: transparent;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  }
+  button.accent:hover:not(:disabled) { background: linear-gradient(135deg, var(--c-accent-dark), var(--c-accent)); }
+
+  /* === Stage 1 warmup === */
+  .warmup-scene {
+    background: linear-gradient(180deg, #c7e9ff 0%, #d4f1e1 100%);
+    border-radius: var(--r-md);
+    padding: 30px 20px;
+    text-align: center;
+    font-size: 56px;
+    margin-bottom: 22px;
+    letter-spacing: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .warmup-scene::after {
+    content: "🏞️";
+    position: absolute;
+    bottom: 8px; right: 14px;
+    font-size: 28px; opacity: 0.5;
+  }
+  .warmup-q { margin-bottom: 18px; }
+  .warmup-q .q-text { font-weight: 700; margin-bottom: 10px; font-size: 16px; color: #374151; }
+  .choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice-row button.selected {
+    background: linear-gradient(135deg, var(--c-accent), #fbbf24);
+    color: white; border-color: transparent;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  }
+
+  /* === Stage 2 listening === */
+  .play-block {
+    display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+    border-radius: var(--r-md);
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  .play-btn {
+    background: linear-gradient(135deg, var(--c-primary), #5dade2);
+    color: white;
+    border: none;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    font-size: 22px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(46, 139, 192, 0.4);
+    transition: all 0.15s;
+  }
+  .play-btn:hover { transform: scale(1.05); }
+  .play-btn:active { transform: scale(0.95); }
+  .play-status { color: var(--c-primary-dark); font-weight: 700; font-size: 14px; }
+
+  .karaoke-passage {
+    background: #fafbfc;
+    border-radius: var(--r-md);
+    padding: 22px 24px;
+    margin-bottom: 22px;
+    font-size: 17px;
+    line-height: 2.1;
+    color: #4b5563;
+  }
+  .karaoke-passage .sent {
+    transition: all 0.25s ease;
+    padding: 2px 4px;
+    border-radius: 6px;
+  }
+  .karaoke-passage .sent.active {
+    background: var(--c-karaoke);
+    color: #1f2937;
+    font-weight: 700;
+    box-shadow: 0 0 0 4px rgba(253, 224, 71, 0.4);
+  }
+
+  /* === MCQ === */
+  .question { margin-top: 4px; }
+  .question .q-stem { font-weight: 700; margin-bottom: 12px; color: #374151; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    text-align: left;
+    padding: 12px 16px;
+    border: 2px solid var(--c-border);
+    border-radius: var(--r-md);
+    background: white;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.15s;
+    font-size: 15px; font-weight: 600;
+  }
+  .option:hover:not(.disabled) { border-color: var(--c-primary); background: #f0f7fc; transform: translateX(4px); }
+  .option .letter {
+    background: var(--c-border); color: #4b5563;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .option.correct { border-color: var(--c-correct); background: #dcfce7; animation: popOk 0.4s ease; }
+  .option.correct .letter { background: var(--c-correct); color: white; }
+  .option.wrong { border-color: var(--c-wrong); background: #fee2e2; animation: shake 0.5s; }
+  .option.wrong .letter { background: var(--c-wrong); color: white; }
+  .option.disabled { pointer-events: none; }
+  .option.correct.disabled, .option.wrong.disabled { opacity: 1; }
+  @keyframes popOk { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  .feedback {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: var(--r-sm);
+    font-size: 14px;
+    display: none;
+  }
+  .feedback.show { display: block; animation: stageIn 0.3s; }
+  .feedback.ok { background: #dcfce7; color: #166534; }
+  .feedback.ng { background: #fee2e2; color: #991b1b; }
+
+  /* === Stage 3 vocab + cloze === */
+  .vocab-progress {
+    text-align: center; color: var(--c-muted); font-size: 13px; margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .vocab-progress .filled { color: var(--c-accent-dark); }
+
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+    perspective: 1000px;
+  }
+  @media (max-width: 600px) { .vocab-grid { grid-template-columns: 1fr; } }
+  .vocab-card {
+    background: white;
+    border: 2px solid var(--c-border);
+    border-radius: var(--r-md);
+    padding: 18px;
+    cursor: pointer;
+    min-height: 130px;
+    display: flex; flex-direction: column; justify-content: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    transform-style: preserve-3d;
+  }
+  .vocab-card:hover { border-color: var(--c-primary); transform: translateY(-3px) scale(1.02); box-shadow: var(--shadow-soft); }
+  .vocab-card .word { font-size: 20px; font-weight: 800; color: var(--c-primary-dark); }
+  .vocab-card .hint { font-size: 12px; color: var(--c-muted); margin-top: 6px; }
+  .vocab-card.flipped {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: var(--c-accent);
+    animation: flipIn 0.5s ease;
+  }
+  @keyframes flipIn {
+    0% { transform: rotateY(180deg) scale(0.8); opacity: 0.3; }
+    50% { transform: rotateY(90deg) scale(0.9); }
+    100% { transform: rotateY(0) scale(1); opacity: 1; }
+  }
+  .vocab-card.flipped .word { font-size: 16px; color: var(--c-accent-dark); }
+  .vocab-card .meaning, .vocab-card .example, .vocab-card .speaker { display: none; }
+  .vocab-card.flipped .meaning {
+    display: block; font-size: 18px; color: #92400e;
+    font-weight: 700; margin-top: 6px;
+  }
+  .vocab-card.flipped .example {
+    display: block; font-size: 13px; color: #78350f;
+    font-style: italic; margin-top: 8px; line-height: 1.5;
+  }
+  .vocab-card.flipped .speaker {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    position: absolute; top: 12px; right: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--c-accent); color: white;
+    border: none; font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    transition: all 0.15s;
+  }
+  .vocab-card.flipped .speaker:hover { transform: scale(1.1); }
+
+  /* Cloze (fill-in-blank with word bank) */
+  .cloze-section { display: none; }
+  .cloze-section.show { display: block; animation: stageIn 0.5s; }
+  .cloze-header {
+    background: linear-gradient(135deg, #fff7e6, #fef3c7);
+    border-radius: var(--r-md);
+    padding: 12px 16px;
+    margin: 22px 0 16px;
+    font-weight: 700;
+    color: var(--c-accent-dark);
+    border-left: 4px solid var(--c-accent);
+  }
+  .cloze-passage {
+    background: #fafbfc;
+    border-radius: var(--r-md);
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    font-size: 17px;
+    line-height: 2.4;
+    color: #1f2937;
+  }
+  .blank {
+    display: inline-block;
+    min-width: 110px;
+    height: 32px;
+    background: white;
+    border: 2px dashed var(--c-accent);
+    border-radius: 8px;
+    padding: 0 10px;
+    text-align: center;
+    line-height: 28px;
+    font-weight: 700;
+    color: var(--c-accent-dark);
+    cursor: pointer;
+    vertical-align: middle;
+    transition: all 0.15s;
+  }
+  .blank:hover:not(.locked) { background: #fef3c7; transform: scale(1.04); }
+  .blank.targeted { background: #fef3c7; border-style: solid; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3); }
+  .blank.locked {
+    background: #dcfce7;
+    border: 2px solid var(--c-correct);
+    color: #166534;
+    cursor: default;
+  }
+  .blank.shake { animation: shake 0.5s; background: #fee2e2; border-color: var(--c-wrong); }
+
+  .word-bank {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: var(--r-md);
+    margin-bottom: 12px;
+  }
+  .word-chip {
+    padding: 10px 18px;
+    background: white;
+    border: 2px solid var(--c-primary);
+    border-radius: 999px;
+    color: var(--c-primary-dark);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 15px;
+  }
+  .word-chip:hover { background: var(--c-primary); color: white; transform: translateY(-2px); }
+  .word-chip.picked {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  }
+  .word-chip.used { opacity: 0.3; pointer-events: none; }
+  .cloze-status {
+    text-align: center; color: var(--c-muted); font-size: 14px; margin-top: 8px;
+  }
+
+  /* === Stage 4 comprehension === */
+  .passage {
+    background: #fafbfc;
+    border-left: 4px solid var(--c-primary);
+    border-radius: var(--r-md);
+    padding: 22px 60px 22px 24px;
+    margin-bottom: 22px;
+    font-size: 17px;
+    line-height: 2;
+    color: #1f2937;
+    position: relative;
+  }
+  .passage .vocab-hl {
+    background: var(--c-highlight);
+    padding: 1px 4px;
+    border-radius: 4px;
+    cursor: help;
+    border-bottom: 2px dotted var(--c-accent);
+    position: relative;
+  }
+  .passage .vocab-hl:hover { background: #fde68a; }
+  .passage .vocab-hl .tip {
+    position: absolute;
+    bottom: 100%; left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937; color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+    margin-bottom: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  .passage .vocab-hl:hover .tip { opacity: 1; }
+  .passage .sentence-hl {
+    background: #dcfce7 !important;
+    transition: background 0.4s;
+    padding: 1px 2px;
+    border-radius: 3px;
+  }
+  .passage .replay-btn {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-primary), #5dade2);
+    color: white;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(46, 139, 192, 0.4);
+    transition: all 0.15s;
+  }
+  .passage .replay-btn:hover { transform: scale(1.1) rotate(15deg); }
+
+  /* === Nav === */
+  .stage-nav {
+    display: flex; justify-content: space-between;
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid var(--c-border);
+  }
+  .stage-nav .spacer { flex: 1; }
+
+  /* === Celebrate === */
+  .celebrate {
+    text-align: center;
+    padding: 40px 16px 16px;
+    position: relative;
+  }
+  .celebrate .emoji { font-size: 80px; animation: cheer 0.8s ease; }
+  .celebrate h3 { color: var(--c-primary-dark); margin: 12px 0 6px; font-size: 26px; font-weight: 800; }
+  .celebrate p { color: var(--c-muted); margin: 0 0 8px; }
+  .celebrate .final-score {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--c-accent), #fbbf24);
+    color: white;
+    padding: 8px 22px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 18px;
+    margin: 10px 0 22px;
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* === Confetti === */
+  .confetti {
+    position: fixed;
+    top: -20px;
+    font-size: 24px;
+    pointer-events: none;
+    animation: confettiFall 2.5s linear forwards;
+    z-index: 10;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Decorative floating shapes -->
+<div class="deco cloud-1">☁️</div>
+<div class="deco cloud-2">☁️</div>
+<div class="deco sun">☀️</div>
+<div class="deco tree-1">🌳</div>
+<div class="deco star-1">✨</div>
+<div class="deco star-2">⭐</div>
+
+<div class="container">
+
+<header>
+  <div class="header-top">
+    <div>
+      <h1>Let's Read — Unit 1</h1>
+      <p class="subtitle">Go to the zoo · 互動式閱讀</p>
+    </div>
+    <div class="score-bar">
+      <div class="score-num">⭐ <span id="score">0</span></div>
+      <div class="stars" id="stars">
+        <span class="star" data-s="1">★</span>
+        <span class="star" data-s="2">★</span>
+        <span class="star" data-s="3">★</span>
+        <span class="star" data-s="4">★</span>
+      </div>
+    </div>
+  </div>
+  <nav class="stepper">
+    <div class="step active" data-go="1">1. 暖身</div>
+    <div class="step" data-go="2">2. 聽力</div>
+    <div class="step" data-go="3">3. 詞彙</div>
+    <div class="step" data-go="4">4. 理解</div>
+  </nav>
+</header>
+
+<main>
+
+<!-- Mascot row (shared, content swapped per stage) -->
+<div class="mascot-row">
+  <div class="mascot" id="mascot">🐯</div>
+  <div class="bubble" id="bubble">Hi! 我是 Toro 🐯 今天我們要去 the zoo！先聊聊你的經驗吧～</div>
+</div>
+
+<!-- ==================== STAGE 1: WARM-UP ==================== -->
+<section id="stage-1" class="stage active">
+  <h2 class="stage-title"><span class="badge">1</span>暖身 Warm-up</h2>
+  <p class="stage-desc">回答兩個小問題，讓 Toro 認識你！</p>
+
+  <div class="warmup-scene">🦁 🐯 🐻 🐵 📷</div>
+
+  <div class="warmup-q" data-q="1">
+    <div class="q-text">Q1. Have you ever been to the zoo? 你去過動物園嗎？</div>
+    <div class="choice-row">
+      <button onclick="pickWarmup(this, 1)">Yes, I have.</button>
+      <button onclick="pickWarmup(this, 1)">No, not yet.</button>
+    </div>
+  </div>
+
+  <div class="warmup-q" data-q="2">
+    <div class="q-text">Q2. Which animal do you like most? 你最喜歡哪種動物？</div>
+    <div class="choice-row">
+      <button onclick="pickWarmup(this, 2)">🐯 Tiger</button>
+      <button onclick="pickWarmup(this, 2)">🐻 Bear</button>
+      <button onclick="pickWarmup(this, 2)">🐵 Monkey</button>
+      <button onclick="pickWarmup(this, 2)">Other</button>
+    </div>
+  </div>
+
+  <div class="stage-nav">
+    <div class="spacer"></div>
+    <button id="next-1" class="primary" onclick="goStage(2)" disabled>下一階段：聽力 →</button>
+  </div>
+</section>
+
+<!-- ==================== STAGE 2: LISTENING (with karaoke) ==================== -->
+<section id="stage-2" class="stage">
+  <h2 class="stage-title"><span class="badge">2</span>聽力 Listening</h2>
+  <p class="stage-desc">點播放鍵聽全文，黃色就是正在唸的句子。聽完之後點下方按鈕進入下一階段，題目都在第 4 階段。</p>
+
+  <audio id="audio-passage" preload="auto" src="data:audio/mpeg;base64,{{AUDIO_PASSAGE}}"></audio>
+
+  <div class="play-block">
+    <button class="play-btn" id="play-passage" onclick="playPassage(this)">▶</button>
+    <div>
+      <div style="font-weight:700;">Listen to the passage</div>
+      <div style="color:var(--c-muted); font-size:14px;">點擊播放，可重複收聽 · <span id="play-status-2" class="play-status"></span></div>
+    </div>
+  </div>
+
+  <div class="karaoke-passage" id="karaoke">
+    <span class="sent" data-i="0">Last Sunday I went to the zoo with my family.</span>
+    <span class="sent" data-i="1">We saw many animals.</span>
+    <span class="sent" data-i="2">Tigers are my favorite animals.</span>
+    <span class="sent" data-i="3">My younger sister likes bears and monkeys.</span>
+    <span class="sent" data-i="4">It was a sunny day, and we took many pictures.</span>
+    <span class="sent" data-i="5">We had a good time.</span>
+  </div>
+
+  <div style="text-align:center; margin: 24px 0 8px;">
+    <button class="accent" id="finish-listening" onclick="finishListening()">我聽完了 →</button>
+    <div style="color:var(--c-muted); font-size:13px; margin-top:8px;">可以多聽幾次再點，沒關係</div>
+  </div>
+
+  <div class="stage-nav">
+    <button onclick="goStage(1)">← 上一階段</button>
+    <div class="spacer"></div>
+    <button id="next-2" class="primary" onclick="goStage(3)" disabled>下一階段：詞彙 →</button>
+  </div>
+</section>
+
+<!-- ==================== STAGE 3: VOCAB + CLOZE ==================== -->
+<section id="stage-3" class="stage">
+  <h2 class="stage-title"><span class="badge">3</span>詞彙 Vocabulary</h2>
+  <p class="stage-desc">先翻 4 張字卡認識生字，再把生字填回課文。</p>
+
+  <audio id="audio-vocab-favorite" preload="auto" src="data:audio/mpeg;base64,{{AUDIO_VOCAB_FAVORITE}}"></audio>
+  <audio id="audio-vocab-younger_sister" preload="auto" src="data:audio/mpeg;base64,{{AUDIO_VOCAB_YOUNGER_SISTER}}"></audio>
+  <audio id="audio-vocab-took_pictures" preload="auto" src="data:audio/mpeg;base64,{{AUDIO_VOCAB_TOOK_PICTURES}}"></audio>
+  <audio id="audio-vocab-good_time" preload="auto" src="data:audio/mpeg;base64,{{AUDIO_VOCAB_GOOD_TIME}}"></audio>
+
+  <div class="vocab-progress">已翻開 <span class="filled" id="flip-count">0</span> / 4 張字卡</div>
+
+  <div class="vocab-grid">
+    <div class="vocab-card" data-key="favorite" onclick="flipCard(this)">
+      <div class="word">favorite</div>
+      <div class="hint">點我翻面看意思 ↻</div>
+      <div class="meaning">最喜愛的</div>
+      <div class="example">Tigers are my favorite animals.</div>
+      <button class="speaker" onclick="event.stopPropagation(); playClip('favorite')">🔊</button>
+    </div>
+    <div class="vocab-card" data-key="younger_sister" onclick="flipCard(this)">
+      <div class="word">younger sister</div>
+      <div class="hint">點我翻面看意思 ↻</div>
+      <div class="meaning">妹妹</div>
+      <div class="example">My younger sister likes bears and monkeys.</div>
+      <button class="speaker" onclick="event.stopPropagation(); playClip('younger_sister')">🔊</button>
+    </div>
+    <div class="vocab-card" data-key="took_pictures" onclick="flipCard(this)">
+      <div class="word">take (took) pictures</div>
+      <div class="hint">點我翻面看意思 ↻</div>
+      <div class="meaning">拍照</div>
+      <div class="example">We took many pictures.</div>
+      <button class="speaker" onclick="event.stopPropagation(); playClip('took_pictures')">🔊</button>
+    </div>
+    <div class="vocab-card" data-key="good_time" onclick="flipCard(this)">
+      <div class="word">have a good time</div>
+      <div class="hint">點我翻面看意思 ↻</div>
+      <div class="meaning">玩得開心</div>
+      <div class="example">We had a good time.</div>
+      <button class="speaker" onclick="event.stopPropagation(); playClip('good_time')">🔊</button>
+    </div>
+  </div>
+
+  <!-- Cloze section -->
+  <div class="cloze-section" id="cloze-section">
+    <div class="cloze-header">📝 小挑戰：把 4 個生字填回課文裡的空格</div>
+
+    <div class="cloze-passage">
+      Last Sunday I went to the zoo with my family. We saw many animals.
+      Tigers are my <span class="blank" data-answer="favorite" onclick="placeBlank(this)">______</span> animals.
+      My <span class="blank" data-answer="younger_sister" onclick="placeBlank(this)">______</span> likes bears and monkeys.
+      It was a sunny day, and we <span class="blank" data-answer="took_pictures" onclick="placeBlank(this)">______</span>.
+      We <span class="blank" data-answer="good_time" onclick="placeBlank(this)">______</span>.
+    </div>
+
+    <div class="word-bank" id="word-bank">
+      <div class="word-chip" data-key="younger_sister" onclick="pickWord(this)">younger sister</div>
+      <div class="word-chip" data-key="good_time" onclick="pickWord(this)">had a good time</div>
+      <div class="word-chip" data-key="favorite" onclick="pickWord(this)">favorite</div>
+      <div class="word-chip" data-key="took_pictures" onclick="pickWord(this)">took many pictures</div>
+    </div>
+    <div class="cloze-status" id="cloze-status">先點下方一個生字，再點上方的空格放入</div>
+  </div>
+
+  <div class="stage-nav">
+    <button onclick="goStage(2)">← 上一階段</button>
+    <div class="spacer"></div>
+    <button id="next-3" class="primary" onclick="goStage(4)" disabled>下一階段：理解 →</button>
+  </div>
+</section>
+
+<!-- ==================== STAGE 4: COMPREHENSION ==================== -->
+<section id="stage-4" class="stage">
+  <h2 class="stage-title"><span class="badge">4</span>理解 Comprehension</h2>
+  <p class="stage-desc">讀完短文（生字 hover 看中文），挑戰 4 題：前 2 題細節（句中直接找）、後 2 題推理（綜合全文）。</p>
+
+  <div class="passage" id="passage-text">
+    <button class="replay-btn" onclick="document.getElementById('audio-passage').play()" title="再聽一次">🔊</button>
+    <span id="s1">Last Sunday I went to the zoo with my family.</span>
+    <span id="s2"> We saw many animals.</span>
+    <span id="s3"> Tigers are my <span class="vocab-hl">favorite<span class="tip">最喜愛的</span></span> animals.</span>
+    <span id="s4"> My <span class="vocab-hl">younger sister<span class="tip">妹妹</span></span> likes bears and monkeys.</span>
+    <span id="s5"> It was a sunny day, and we <span class="vocab-hl">took<span class="tip">拍 (拍照)</span></span> many pictures.</span>
+    <span id="s6"> We <span class="vocab-hl">had a good time<span class="tip">玩得開心</span></span>.</span>
+  </div>
+
+  <div class="cloze-header" style="margin: 0 0 16px;">📘 細節題（句子裡直接找得到答案）</div>
+
+  <div class="question" style="margin-bottom: 20px;">
+    <div class="q-stem">Q1. Who did the writer go to the zoo with? 作者跟誰一起去動物園？</div>
+    <div class="options" id="q-c1">
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c1', 's1')">
+        <span class="letter">A</span><span>Friends 朋友</span></button>
+      <button class="option" data-correct="1" onclick="answerMCQ(this, 'c1', 's1')">
+        <span class="letter">B</span><span>Family 家人</span></button>
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c1', 's1')">
+        <span class="letter">C</span><span>Classmates 同學</span></button>
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c1', 's1')">
+        <span class="letter">D</span><span>Teacher 老師</span></button>
+    </div>
+    <div class="feedback" id="fb-c1"></div>
+  </div>
+
+  <div class="question" style="margin-bottom: 28px;">
+    <div class="q-stem">Q2. What does the writer's younger sister like? 妹妹喜歡什麼？</div>
+    <div class="options" id="q-c2">
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c2', 's4')">
+        <span class="letter">A</span><span>Tigers 老虎</span></button>
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c2', 's4')">
+        <span class="letter">B</span><span>Lions 獅子</span></button>
+      <button class="option" data-correct="1" onclick="answerMCQ(this, 'c2', 's4')">
+        <span class="letter">C</span><span>Bears and monkeys 熊和猴子</span></button>
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c2', 's4')">
+        <span class="letter">D</span><span>Dogs and cats 狗和貓</span></button>
+    </div>
+    <div class="feedback" id="fb-c2"></div>
+  </div>
+
+  <div class="cloze-header" style="margin: 0 0 16px; background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; border-left-color: var(--c-accent);">🧩 推理題（答案不在句子裡，要綜合理解）</div>
+
+  <div class="question" style="margin-bottom: 20px;">
+    <div class="q-stem">Q3. How was the weather last Sunday? 那天的天氣如何？</div>
+    <div class="options" id="q-c3">
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c3', 's5')">
+        <span class="letter">A</span><span>It was rainy.</span></button>
+      <button class="option" data-correct="1" onclick="answerMCQ(this, 'c3', 's5')">
+        <span class="letter">B</span><span>It was nice.</span></button>
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c3', 's5')">
+        <span class="letter">C</span><span>It was bad.</span></button>
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c3', 's5')">
+        <span class="letter">D</span><span>It was cloudy.</span></button>
+    </div>
+    <div class="feedback" id="fb-c3"></div>
+  </div>
+
+  <div class="question">
+    <div class="q-stem">Q4. Which is NOT true? 哪一項不正確？</div>
+    <div class="options" id="q-c4">
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c4', 's2')">
+        <span class="letter">A</span><span>The writer saw many animals.</span></button>
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c4', 's6')">
+        <span class="letter">B</span><span>The writer's family had a good time.</span></button>
+      <button class="option" data-correct="1" onclick="answerMCQ(this, 'c4', 's4')">
+        <span class="letter">C</span><span>The writer's sister doesn't like animals, so she didn't go.</span></button>
+      <button class="option" data-correct="0" onclick="answerMCQ(this, 'c4', 's5')">
+        <span class="letter">D</span><span>The writer took many pictures.</span></button>
+    </div>
+    <div class="feedback" id="fb-c4"></div>
+  </div>
+
+  <div id="celebrate-block" class="celebrate" style="display:none;">
+    <div class="emoji">🎉</div>
+    <h3>Well done!</h3>
+    <p>你完成了 Unit 1 的四個階段。</p>
+    <div class="final-score">最終分數 <span id="final-score">0</span> / 100</div>
+    <div>
+      <button class="primary" onclick="goStage(1); resetAll()">🔁 重新挑戰</button>
+    </div>
+  </div>
+
+  <div class="stage-nav">
+    <button onclick="goStage(3)">← 上一階段</button>
+    <div class="spacer"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  // ===== Mascot dialog per stage =====
+  const MASCOT_LINES = {
+    1: 'Hi! 我是 Toro 🐯 今天我們要去 the zoo！先聊聊你的經驗吧～',
+    2: '聽聽看故事！黃色就是現在唸到的句子，跟著一起讀讀看。聽完按下面按鈕進下一階段。',
+    3: '太棒了～再來認識 4 個關鍵字！學完之後幫我把空格填回課文裡。',
+    4: '最後一關！讀完課文，挑戰 4 題理解 — 前 2 題是細節（句中直接找）、後 2 題是推理（要綜合全文）。',
+  };
+
+  // ===== Score & stars =====
+  let score = 0;
+  const completed = { 1: false, 2: false, 3: false, 4: false };
+  function addScore(delta) {
+    score = Math.min(100, score + delta);
+    const el = document.getElementById('score');
+    el.textContent = score;
+    el.parentElement.animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }],
+      { duration: 400, easing: 'ease-out' }
+    );
+  }
+  function lightStar(n) {
+    document.querySelector(`.star[data-s="${n}"]`).classList.add('lit');
+  }
+
+  // ===== Stage navigation =====
+  function goStage(n) {
+    document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+    document.getElementById('stage-' + n).classList.add('active');
+    document.querySelectorAll('.step').forEach(s => {
+      s.classList.toggle('active', s.dataset.go === String(n));
+    });
+    // mascot speaks
+    const bubble = document.getElementById('bubble');
+    bubble.style.opacity = '0';
+    setTimeout(() => {
+      bubble.textContent = MASCOT_LINES[n] || '';
+      bubble.style.opacity = '1';
+    }, 200);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    sfx('sweep');
+  }
+  document.querySelectorAll('.step').forEach(s => {
+    s.addEventListener('click', () => goStage(parseInt(s.dataset.go)));
+  });
+  function markDone(n) {
+    if (completed[n]) return;
+    completed[n] = true;
+    document.querySelector(`.step[data-go="${n}"]`).classList.add('done');
+    const nxt = document.getElementById('next-' + n);
+    if (nxt) nxt.disabled = false;
+    lightStar(n);
+    mascotCheer();
+    sfx('star');
+  }
+
+  // ===== Web Audio sfx =====
+  let audioCtx = null;
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(freq, dur, type='sine', gain=0.15, when=0) {
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, ctx.currentTime + when);
+    g.gain.linearRampToValueAtTime(gain, ctx.currentTime + when + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + when + dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(ctx.currentTime + when);
+    osc.stop(ctx.currentTime + when + dur + 0.05);
+  }
+  function sfx(kind) {
+    try {
+      if (kind === 'ok') { tone(523, 0.12, 'triangle', 0.18, 0); tone(659, 0.12, 'triangle', 0.18, 0.1); tone(784, 0.2, 'triangle', 0.18, 0.2); }
+      else if (kind === 'ng') { tone(330, 0.18, 'sawtooth', 0.12, 0); tone(220, 0.25, 'sawtooth', 0.12, 0.15); }
+      else if (kind === 'click') { tone(880, 0.05, 'square', 0.08, 0); }
+      else if (kind === 'flip') { tone(660, 0.08, 'sine', 0.1, 0); tone(880, 0.1, 'sine', 0.1, 0.06); }
+      else if (kind === 'star') { tone(784, 0.1, 'triangle', 0.18, 0); tone(988, 0.1, 'triangle', 0.18, 0.08); tone(1175, 0.2, 'triangle', 0.18, 0.16); }
+      else if (kind === 'sweep') { tone(440, 0.12, 'sine', 0.08, 0); tone(587, 0.12, 'sine', 0.08, 0.06); }
+      else if (kind === 'win') {
+        const notes = [523, 659, 784, 1046, 784, 1046];
+        notes.forEach((f, i) => tone(f, 0.2, 'triangle', 0.18, i * 0.12));
+      }
+    } catch (e) {}
+  }
+
+  // ===== Mascot animations =====
+  function mascotCheer() {
+    const m = document.getElementById('mascot');
+    m.classList.add('cheer');
+    setTimeout(() => m.classList.remove('cheer'), 700);
+  }
+  function mascotSad() {
+    const m = document.getElementById('mascot');
+    m.classList.add('sad');
+    setTimeout(() => m.classList.remove('sad'), 600);
+  }
+
+  // ===== Stage 1: warm-up =====
+  const warmupAnswers = {};
+  function pickWarmup(btn, qNum) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    warmupAnswers[qNum] = btn.textContent.trim();
+    sfx('click');
+    if (warmupAnswers[1] && warmupAnswers[2] && !completed[1]) {
+      addScore(10);
+      markDone(1);
+    }
+  }
+
+  // ===== Stage 2: listening with karaoke =====
+  const audioPassage = document.getElementById('audio-passage');
+  const SENTENCE_STARTS = [0, 2.66, 4.46, 6.89, 9.63, 12.94];  // seconds
+  let karaokeTimer = null;
+
+  function updateKaraoke(t) {
+    let idx = 0;
+    for (let i = 0; i < SENTENCE_STARTS.length; i++) {
+      if (t >= SENTENCE_STARTS[i]) idx = i;
+    }
+    document.querySelectorAll('#karaoke .sent').forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.i) === idx);
+    });
+  }
+
+  function playPassage(btn) {
+    if (audioPassage.paused) {
+      audioPassage.currentTime = 0;
+      audioPassage.play();
+      btn.textContent = '❚❚';
+      document.getElementById('play-status-2').textContent = '播放中...';
+      // karaoke driver via timeupdate (fires ~4×/s)
+      audioPassage.addEventListener('timeupdate', onTU);
+    } else {
+      audioPassage.pause();
+      btn.textContent = '▶';
+      document.getElementById('play-status-2').textContent = '已暫停';
+    }
+  }
+  function onTU() { updateKaraoke(audioPassage.currentTime); }
+  audioPassage.addEventListener('ended', () => {
+    document.getElementById('play-passage').textContent = '▶';
+    document.getElementById('play-status-2').textContent = '播放完畢';
+    audioPassage.removeEventListener('timeupdate', onTU);
+    document.querySelectorAll('#karaoke .sent').forEach(s => s.classList.remove('active'));
+  });
+
+  // ===== MCQ shared handler =====
+  function answerMCQ(btn, qKey, sentenceId) {
+    const opts = btn.parentElement.querySelectorAll('.option');
+    if (opts[0].classList.contains('disabled')) return;  // already answered
+    opts.forEach(o => o.classList.add('disabled'));
+    const correct = btn.dataset.correct === '1';
+    if (correct) {
+      btn.classList.add('correct');
+      showFb(qKey, '答對了！👍', true);
+      if (sentenceId) hlSentence(sentenceId);
+      addScore(20);
+      sfx('ok');
+      mascotCheer();
+      onCorrect(qKey);
+    } else {
+      btn.classList.add('wrong');
+      opts.forEach(o => { if (o.dataset.correct === '1') o.classList.add('correct'); });
+      showFb(qKey, '再想想 — 正確答案是綠色那個。', false);
+      sfx('ng');
+      mascotSad();
+      onCorrect(qKey);  // still progress
+    }
+  }
+  function showFb(key, msg, ok) {
+    const fb = document.getElementById('fb-' + key);
+    if (!fb) return;
+    fb.textContent = msg;
+    fb.className = 'feedback show ' + (ok ? 'ok' : 'ng');
+  }
+  function hlSentence(sid) {
+    const el = document.getElementById(sid);
+    if (!el) return;
+    el.classList.add('sentence-hl');
+    setTimeout(() => el.classList.remove('sentence-hl'), 2800);
+  }
+  const answered = { c1: false, c2: false, c3: false, c4: false };
+  function onCorrect(key) {
+    if (answered[key]) return;
+    answered[key] = true;
+    if (answered.c1 && answered.c2 && answered.c3 && answered.c4) {
+      markDone(4);
+      showCelebrate();
+    }
+  }
+
+  // Stage 2: manual "listened" button
+  function finishListening() {
+    const btn = document.getElementById('finish-listening');
+    btn.disabled = true;
+    btn.textContent = '✓ 已完成';
+    addScore(10);
+    markDone(2);
+  }
+
+  // ===== Stage 3 part 1: vocab cards =====
+  const flippedSet = new Set();
+  function flipCard(card) {
+    if (card.classList.contains('flipped')) return;
+    card.classList.add('flipped');
+    flippedSet.add(card.dataset.key);
+    document.getElementById('flip-count').textContent = flippedSet.size;
+    sfx('flip');
+    if (flippedSet.size === 4) {
+      addScore(10);
+      document.getElementById('cloze-section').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('cloze-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    }
+  }
+  function playClip(key) {
+    const a = document.getElementById('audio-vocab-' + key);
+    if (!a) return;
+    a.currentTime = 0;
+    a.play();
+  }
+
+  // ===== Stage 3 part 2: cloze (word bank + blanks) =====
+  let pickedChip = null;
+  let filledCount = 0;
+  const TOTAL_BLANKS = 4;
+
+  function pickWord(chip) {
+    if (chip.classList.contains('used')) return;
+    document.querySelectorAll('.word-chip').forEach(c => c.classList.remove('picked'));
+    chip.classList.add('picked');
+    pickedChip = chip;
+    document.querySelectorAll('.blank:not(.locked)').forEach(b => b.classList.add('targeted'));
+    document.getElementById('cloze-status').textContent = '現在點上方一個空格放入「' + chip.textContent + '」';
+    sfx('click');
+  }
+
+  function placeBlank(blank) {
+    if (blank.classList.contains('locked')) return;
+    if (!pickedChip) {
+      document.getElementById('cloze-status').textContent = '請先在下方點一個生字 ↓';
+      return;
+    }
+    const want = blank.dataset.answer;
+    const got = pickedChip.dataset.key;
+    if (want === got) {
+      blank.textContent = pickedChip.textContent;
+      blank.classList.add('locked');
+      blank.classList.remove('targeted');
+      pickedChip.classList.add('used');
+      pickedChip.classList.remove('picked');
+      pickedChip = null;
+      filledCount++;
+      addScore(5);
+      sfx('ok');
+      mascotCheer();
+      document.querySelectorAll('.blank').forEach(b => b.classList.remove('targeted'));
+      if (filledCount === TOTAL_BLANKS) {
+        document.getElementById('cloze-status').innerHTML = '✓ 4 題全對！恭喜過關 🎉';
+        document.getElementById('cloze-status').style.color = 'var(--c-correct)';
+        document.getElementById('cloze-status').style.fontWeight = '700';
+        markDone(3);
+      } else {
+        document.getElementById('cloze-status').textContent = `做得好！還剩 ${TOTAL_BLANKS - filledCount} 格。`;
+        document.getElementById('cloze-status').style.color = 'var(--c-correct)';
+      }
+    } else {
+      blank.classList.add('shake');
+      setTimeout(() => blank.classList.remove('shake'), 600);
+      pickedChip.classList.remove('picked');
+      pickedChip = null;
+      document.querySelectorAll('.blank').forEach(b => b.classList.remove('targeted'));
+      document.getElementById('cloze-status').textContent = '不對，再試試看 — 想想這個位置在說什麼？';
+      document.getElementById('cloze-status').style.color = 'var(--c-wrong)';
+      sfx('ng');
+      mascotSad();
+    }
+  }
+
+  // ===== Celebration =====
+  function showCelebrate() {
+    document.getElementById('celebrate-block').style.display = 'block';
+    document.getElementById('final-score').textContent = score;
+    sfx('win');
+    // confetti
+    const emojis = ['🎉', '⭐', '🎊', '🌟', '✨', '🦁', '🐯'];
+    for (let i = 0; i < 40; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.animationDuration = (1.8 + Math.random() * 1.5) + 's';
+      c.style.animationDelay = (Math.random() * 0.4) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }
+  }
+
+  // ===== Reset =====
+  function resetAll() {
+    score = 0;
+    document.getElementById('score').textContent = '0';
+    for (const k in completed) completed[k] = false;
+    for (const k in answered) answered[k] = false;
+    flippedSet.clear();
+    pickedChip = null; filledCount = 0;
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('lit'));
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('done'));
+    document.querySelectorAll('.vocab-card').forEach(c => c.classList.remove('flipped'));
+    document.querySelectorAll('.word-chip').forEach(c => { c.classList.remove('picked', 'used'); });
+    document.querySelectorAll('.blank').forEach(b => {
+      b.classList.remove('locked', 'targeted', 'shake');
+      b.textContent = '______';
+    });
+    document.querySelectorAll('.option').forEach(o => o.classList.remove('correct', 'wrong', 'disabled'));
+    document.querySelectorAll('.feedback').forEach(f => f.classList.remove('show', 'ok', 'ng'));
+    document.querySelectorAll('.warmup-q button').forEach(b => b.classList.remove('selected'));
+    Object.keys(warmupAnswers).forEach(k => delete warmupAnswers[k]);
+    document.getElementById('cloze-section').classList.remove('show');
+    document.getElementById('celebrate-block').style.display = 'none';
+    document.getElementById('flip-count').textContent = '0';
+    document.getElementById('cloze-status').textContent = '先點下方一個生字，再點上方的空格放入';
+    document.getElementById('cloze-status').style.color = '';
+    document.getElementById('cloze-status').style.fontWeight = '';
+    [1,2,3,4].forEach(n => { const b = document.getElementById('next-' + n); if (b) b.disabled = true; });
+    document.getElementById('play-passage').textContent = '▶';
+    document.getElementById('play-status-2').textContent = '';
+    document.querySelectorAll('#karaoke .sent').forEach(s => s.classList.remove('active'));
+    const finBtn = document.getElementById('finish-listening');
+    finBtn.disabled = false;
+    finBtn.textContent = '我聽完了 →';
+  }
+</script>
+</body>
+</html>

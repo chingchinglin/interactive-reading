@@ -1,0 +1,21 @@
+# Secrets
+.env
+.env.*
+*.key
+
+# Copyrighted source materials (do NOT publish)
+reading_2.pdf
+*.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
