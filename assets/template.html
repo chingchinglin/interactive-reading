@@ -966,7 +966,6 @@
     warmupAnswers[qNum] = btn.textContent.trim();
     sfx('click');
     if (warmupAnswers[1] && warmupAnswers[2] && !completed[1]) {
-      addScore(10);
       markDone(1);
     }
   }
@@ -1018,7 +1017,7 @@
       btn.classList.add('correct');
       showFb(qKey, '答對了！👍', true);
       if (sentenceId) hlSentence(sentenceId);
-      addScore(20);
+      addScore(15);
       sfx('ok');
       mascotCheer();
       onCorrect(qKey);
@@ -1058,7 +1057,6 @@
     const btn = document.getElementById('finish-listening');
     btn.disabled = true;
     btn.textContent = '✓ 已完成';
-    addScore(10);
     markDone(2);
   }
 
@@ -1071,7 +1069,6 @@
     document.getElementById('flip-count').textContent = flippedSet.size;
     sfx('flip');
     if (flippedSet.size === 4) {
-      addScore(10);
       document.getElementById('cloze-section').classList.add('show');
       setTimeout(() => {
         document.getElementById('cloze-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1116,7 +1113,7 @@
       pickedChip.classList.remove('picked');
       pickedChip = null;
       filledCount++;
-      addScore(5);
+      addScore(10);
       sfx('ok');
       mascotCheer();
       document.querySelectorAll('.blank').forEach(b => b.classList.remove('targeted'));
